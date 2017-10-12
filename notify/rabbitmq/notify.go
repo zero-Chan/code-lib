@@ -6,10 +6,12 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// RabbitNotify
+// a RabbitNotify must be only use for only one queue push or pop.
 type RabbitNotify struct {
 	*RabbitClient
 
-	cfg            *RabbitMQConf
+	cfg            *RabbitNotifyConf
 	Exchange       string
 	RoutingKey     string
 	QueueName      string
@@ -26,7 +28,7 @@ type RabbitNotify struct {
 	Advance *RabbitNotifyAdvance
 }
 
-func NewRabbitNotify(cfg *RabbitMQConf) (notify *RabbitNotify, err error) {
+func NewRabbitNotify(cfg *RabbitNotifyConf) (notify *RabbitNotify, err error) {
 	ErrorPrefix := "[InitError] `Func: NewRabbitNotify` "
 
 	if cfg == nil {
@@ -42,22 +44,43 @@ func NewRabbitNotify(cfg *RabbitMQConf) (notify *RabbitNotify, err error) {
 	notify = &RabbitNotify{
 		RabbitClient: cli,
 
-		cfg:        cfg,
-		RoutingKey: cfg.RoutingKey,
-		QueueName:  cfg.QueueName,
+		cfg:            cfg,
+		Exchange:       cfg.Exchange,
+		RoutingKey:     cfg.RoutingKey,
+		QueueName:      cfg.QueueName,
+		PublisherInuse: cfg.PublisherInuse,
+		ConsumerInuse:  cfg.ConsumerInuse,
 
 		stop:  make(chan bool),
 		data:  make(chan []byte),
 		isAck: make(chan bool),
 
-		Advance: NewRabbitNotifyAdvance(),
+		Advance: NewRabbitNotifyAdvanceParams(),
 	}
 
-	if cfg.Exchange == "" {
-		err = fmt.Errorf(ErrorPrefix + "`Reason: cfg.Exchange is empty.`")
-		return
-	} else {
-		notify.Exchange = cfg.Exchange
+	if notify.PublisherInuse {
+		// TODO Advance / Banned user declare exchange
+		err = notify.AmqpChan.ExchangeDeclare(notify.Exchange, cfg.Kind, false, false, false, false, nil)
+		if err != nil {
+			err = fmt.Errorf(ErrorPrefix+"`Reason: %s`", err)
+			return
+		}
+	}
+
+	if notify.ConsumerInuse {
+		// TODO Advance / Banned user declare exchange
+		rmqQueue, nerr := notify.AmqpChan.QueueDeclare(notify.QueueName, false, false, false, false, nil)
+		if nerr != nil {
+			err = fmt.Errorf(ErrorPrefix+"`Reason: %s`", nerr)
+			return
+		}
+
+		// TODO Advance / Banned user declare exchange
+		nerr = notify.AmqpChan.QueueBind(rmqQueue.Name, notify.RoutingKey, notify.Exchange, false, nil)
+		if nerr != nil {
+			err = fmt.Errorf(ErrorPrefix+"`Reason: %s`", nerr)
+			return
+		}
 	}
 
 	return
@@ -90,7 +113,7 @@ func (this *RabbitNotify) Ack() (err error) {
 }
 
 func (this *RabbitNotify) Receive() (err error) {
-	ErrorPrefix := "[AckFail] `Func: RabbitNotify.Receive` "
+	ErrorPrefix := "[ReceiveFail] `Func: RabbitNotify.Receive` "
 
 	// TODO
 	// Advance 参数
@@ -133,6 +156,7 @@ func (this *RabbitNotify) Push(data []byte) (err error) {
 	err = this.AmqpChan.Publish(this.Exchange, this.RoutingKey, this.Advance.Mandatory, this.Advance.Immediate, amqp.Publishing{
 		Body: data,
 	})
+
 	if err != nil {
 		err = fmt.Errorf(ErrorPrefix+"`Reason: %s`", err)
 		return
@@ -180,7 +204,7 @@ type RabbitNotifyAdvance struct {
 	Multiple bool
 }
 
-func NewRabbitNotifyAdvance() *RabbitNotifyAdvance {
+func NewRabbitNotifyAdvanceParams() *RabbitNotifyAdvance {
 	adv := RabbitNotifyAdvance{
 		Mandatory: false,
 		Immediate: false,

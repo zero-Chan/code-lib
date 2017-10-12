@@ -70,6 +70,7 @@ func (this *connRecord) Close() (err error) {
 func (this *RmqConnMarker) Set(key string, val *amqp.Connection) {
 	this.mutex.Lock()
 	defer this.mutex.Unlock()
+	this.conns[key] = &connRecord{}
 	this.conns[key].Set(val)
 }
 

@@ -13,17 +13,26 @@ type RabbitClientConf struct {
 	VHost    string
 }
 
-type RabbitMQConf struct {
+type RabbitNotifyConf struct {
 	*RabbitClientConf
-	Exchange       string
-	RoutingKey     string
+
+	// Publisher need
+	Exchange string
+
+	// PUblisher need
+	RoutingKey string
+
+	// COnsumer need
 	QueueName      string
-	BindKind       string // direct, fanout, topic
 	PublisherInuse bool
 	ConsumerInuse  bool
 
 	// 高级选项
 	Advanced *Table
+
+	// TODO
+	// Banned user declare exchange, queue and bind routingkey.
+	Kind string // direct , fanout , topic
 }
 
 func (this *RabbitClientConf) Addr() string {
