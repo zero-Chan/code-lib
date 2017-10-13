@@ -56,7 +56,7 @@ func NewRabbitClient(cfg *RabbitClientConf) (cli *RabbitClient, err error) {
 	// 多个rabbitClient可以复用同一个connection,但是一个rabbitClient只使用一个amqpChan
 	amqpChan, err := conn.Channel()
 	if err != nil {
-		err = fmt.Errorf(ErrorPrefix+"`Reason: %s`", url, err)
+		err = fmt.Errorf(ErrorPrefix+"`Reason: %s`", err)
 	}
 
 	cli.conn = conn

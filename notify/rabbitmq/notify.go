@@ -58,25 +58,29 @@ func NewRabbitNotify(cfg *RabbitNotifyConf) (notify *RabbitNotify, err error) {
 		Advance: NewRabbitNotifyAdvanceParams(),
 	}
 
-	if notify.PublisherInuse {
-		// TODO Advance / Banned user declare exchange
-		err = notify.AmqpChan.ExchangeDeclare(notify.Exchange, cfg.Kind, false, false, false, false, nil)
+	return
+}
+
+func (this *RabbitNotify) Init() (err error) {
+	ErrorPrefix := "[InitError] `Func: RabbitNotify.Init` "
+
+	if this.Exchange != "" {
+		err = this.AmqpChan.ExchangeDeclare(this.Exchange, this.cfg.Kind, false, false, false, false, nil)
 		if err != nil {
 			err = fmt.Errorf(ErrorPrefix+"`Reason: %s`", err)
 			return
 		}
 	}
 
-	if notify.ConsumerInuse {
-		// TODO Advance / Banned user declare exchange
-		rmqQueue, nerr := notify.AmqpChan.QueueDeclare(notify.QueueName, false, false, false, false, nil)
+	// TODO 匿名队列不会被创建
+	if this.QueueName != "" {
+		rmqQueue, nerr := this.AmqpChan.QueueDeclare(this.QueueName, false, false, false, false, nil)
 		if nerr != nil {
 			err = fmt.Errorf(ErrorPrefix+"`Reason: %s`", nerr)
 			return
 		}
 
-		// TODO Advance / Banned user declare exchange
-		nerr = notify.AmqpChan.QueueBind(rmqQueue.Name, notify.RoutingKey, notify.Exchange, false, nil)
+		nerr = this.AmqpChan.QueueBind(rmqQueue.Name, this.RoutingKey, this.Exchange, false, nil)
 		if nerr != nil {
 			err = fmt.Errorf(ErrorPrefix+"`Reason: %s`", nerr)
 			return

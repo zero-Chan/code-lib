@@ -16,16 +16,17 @@ type RabbitClientConf struct {
 type RabbitNotifyConf struct {
 	*RabbitClientConf
 
+	PublisherInuse bool
+	ConsumerInuse  bool
+
 	// Publisher need
 	Exchange string
 
-	// PUblisher need
+	// Publisher need
 	RoutingKey string
 
-	// COnsumer need
-	QueueName      string
-	PublisherInuse bool
-	ConsumerInuse  bool
+	// Consumer need
+	QueueName string
 
 	// 高级选项
 	Advanced *Table

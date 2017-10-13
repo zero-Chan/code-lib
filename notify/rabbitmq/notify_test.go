@@ -4,31 +4,6 @@ import (
 	"testing"
 )
 
-func Test_CreateExchangeAndQueue(t *testing.T) {
-	cfg := &RabbitNotifyConf{
-		RabbitClientConf: &RabbitClientConf{
-			Host:     "localhost",
-			Port:     5672,
-			UserName: "guest",
-			Password: "guest",
-			VHost:    "/",
-		},
-		Exchange:       "myExchange",
-		RoutingKey:     "myRoutingKey",
-		QueueName:      "myQueue",
-		PublisherInuse: true,
-		ConsumerInuse:  true,
-
-		Kind: "direct",
-	}
-
-	_, err := NewRabbitNotify(cfg)
-	if err != nil {
-		t.Errorf("%s", err)
-		t.FailNow()
-	}
-}
-
 func Test_RabbitNotifyPublish(t *testing.T) {
 	cfg := &RabbitNotifyConf{
 		RabbitClientConf: &RabbitClientConf{
@@ -46,6 +21,11 @@ func Test_RabbitNotifyPublish(t *testing.T) {
 	}
 
 	notify, err := NewRabbitNotify(cfg)
+	if err != nil {
+		t.Errorf("%s", err)
+		t.FailNow()
+	}
+	err = notify.Init()
 	if err != nil {
 		t.Errorf("%s", err)
 		t.FailNow()
@@ -82,6 +62,11 @@ func Test_RabbitNotifyConsume(t *testing.T) {
 	}
 
 	notify, err := NewRabbitNotify(cfg)
+	if err != nil {
+		t.Errorf("%s", err)
+		t.FailNow()
+	}
+	err = notify.Init()
 	if err != nil {
 		t.Errorf("%s", err)
 		t.FailNow()
