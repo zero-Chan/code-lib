@@ -5,16 +5,16 @@ import (
 	"log"
 	"os"
 
-	slog "subassembly/log"
+	slog "code-lib/log"
 )
 
 type GoLog struct {
-	log *log.Logger
+	*log.Logger
 }
 
 func Create(out io.Writer, prefix string, flag int) GoLog {
 	golog := GoLog{
-		log: log.New(out, prefix, flag),
+		Logger: log.New(out, prefix, flag),
 	}
 
 	return golog
@@ -38,14 +38,26 @@ func NewDefault() *GoLog {
 	return &defaultLog
 }
 
-func (this *GoLog) Printf(format string, v ...interface{}) {
-	this.log.Printf(format, v...)
+func (this *GoLog) Error(v ...interface{}) {
+	this.Logger.Fatal(v...)
 }
 
-func (this *GoLog) Print(v ...interface{}) {
-	this.log.Print(v...)
+func (this *GoLog) Errorf(format string, v ...interface{}) {
+	this.Logger.Fatalf(format, v...)
 }
 
-func (this *GoLog) Println(v ...interface{}) {
-	this.log.Println(v...)
+func (this *GoLog) Errorln(v ...interface{}) {
+	this.Logger.Fatalln(v...)
+}
+
+func (this *GoLog) Notice(v ...interface{}) {
+	this.Logger.Print(v...)
+}
+
+func (this *GoLog) Noticef(format string, v ...interface{}) {
+	this.Logger.Printf(format, v...)
+}
+
+func (this *GoLog) Noticeln(v ...interface{}) {
+	this.Logger.Println(v...)
 }

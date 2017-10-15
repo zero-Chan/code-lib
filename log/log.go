@@ -25,9 +25,9 @@ type Logger interface {
 	//	Critln(v ...interface{})
 
 	//	// error: 用户传入参数错误等一般等级的错误消息
-	//	Error(v ...interface{})
-	//	Errorf(format string, v ...interface{})
-	//	Errorln(v ...interface{})
+	Error(v ...interface{})
+	Errorf(format string, v ...interface{})
+	Errorln(v ...interface{})
 
 	//	// warn: 出错但不影响程序继续运行,程序能自己恢复运行,不需要人工参与修复的问题
 	//	Warn(v ...interface{})
@@ -35,9 +35,9 @@ type Logger interface {
 	//	Warnln(v ...interface{})
 
 	//	// notice:  接口访问消息,用于统计访问量,需要设计好足够的统计参数
-	//	Notice(v ...interface{})
-	//	Noticef(format string, v ...interface{})
-	//	Noticeln(v ...interface{})
+	Notice(v ...interface{})
+	Noticef(format string, v ...interface{})
+	Noticeln(v ...interface{})
 
 	//	// info: 用户传入的参数,运行状态输出等辅助跟踪错误的信息
 	//	Info(v ...interface{})
