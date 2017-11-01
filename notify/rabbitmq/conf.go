@@ -1,8 +1,9 @@
 package rabbitmq
 
 import (
-	"net/url"
 	"strconv"
+
+	"github.com/streadway/amqp"
 )
 
 type RabbitClientConf struct {
@@ -51,18 +52,13 @@ func (this *RabbitClientConf) Addr() string {
 // password = *(unreserved / pct-encoded / sub-delims)
 // vhost = segment
 func (this *RabbitClientConf) String() string {
-	amqpUri := url.URL{}
-
-	if this.Addr() == "" {
-		return ""
-	}
-
-	amqpUri.Scheme = "amqp"
-	amqpUri.User = url.UserPassword(this.UserName, this.Password)
-	amqpUri.Host = this.Addr()
-
-	if this.VHost != "" {
-		amqpUri.Path = this.VHost
+	amqpUri := amqp.URI{
+		Scheme:   "amqp",
+		Host:     this.Host,
+		Port:     int(this.Port),
+		Username: this.UserName,
+		Password: this.Password,
+		Vhost:    this.VHost,
 	}
 
 	return amqpUri.String()

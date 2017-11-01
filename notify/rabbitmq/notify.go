@@ -62,6 +62,7 @@ func NewRabbitNotify(cfg *RabbitNotifyConf) (notify *RabbitNotify, err error) {
 }
 
 func (this *RabbitNotify) Init() (err error) {
+	// TODO
 	ErrorPrefix := "[InitError] `Func: RabbitNotify.Init` "
 
 	if this.Exchange != "" {
@@ -85,6 +86,17 @@ func (this *RabbitNotify) Init() (err error) {
 			err = fmt.Errorf(ErrorPrefix+"`Reason: %s`", nerr)
 			return
 		}
+	}
+
+	return
+}
+
+func (this *RabbitNotify) Close() (err error) {
+	this.StopPop()
+
+	err = this.RabbitClient.Close()
+	if err != nil {
+		return
 	}
 
 	return
