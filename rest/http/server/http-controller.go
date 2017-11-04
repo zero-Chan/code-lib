@@ -4,10 +4,11 @@ import (
 	"net/http"
 
 	reflect_util "code-lib/reflect-util"
+	"code-lib/rest"
 )
 
 type HTTPController struct {
-	svr     *HTTPMuxServer
+	svr     *HTTPServer
 	Handler HTTPHandler
 }
 
@@ -22,16 +23,13 @@ func NewHTTPController() *HTTPController {
 }
 
 func (this *HTTPController) ServeHTTP(respw http.ResponseWriter, req *http.Request) {
-	// new global processor
-	var execProcessor HTTPProcessor
-	if this.svr.processor != nil {
-		var ok bool
-		execProcessor, ok = reflect_util.NewInterface(this.svr.processor).(HTTPProcessor)
-		if !ok {
-			respw.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-	}
+	var (
+		restResp *rest.RestResponse
+	)
+	respw.WriteHeader(http.StatusOK)
+
+	// new channel
+	httpch := NewHTTPChannel(respw, req)
 
 	// new handler
 	execHandler, ok := reflect_util.NewInterface(this.Handler).(HTTPHandler)
@@ -40,24 +38,28 @@ func (this *HTTPController) ServeHTTP(respw http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	// new channel
-	httpch := NewHTTPChannel(respw, req)
-
-	// exec
-	if execProcessor != nil {
-		execProcessor.InitFromHTTP(httpch)
-
-		execProcessor.Prepare()
-	}
-
+	// exec handler
 	execHandler.InitFromHTTP(httpch)
 
-	execHandler.Prepare()
-	execHandler.Handle()
-	execHandler.Finish()
+	for {
+		restResp = execHandler.Prepare()
+		if !restResp.IsOk() {
+			break
+		}
 
-	if execProcessor != nil {
-		execProcessor.Finish()
+		restResp = execHandler.Handle()
+		if !restResp.IsOk() {
+			break
+		}
+
+		restResp = execHandler.Finish()
+		if !restResp.IsOk() {
+			break
+		}
+
+		break
 	}
-	respw.WriteHeader(http.StatusOK)
+
+	jsonbytes, _ := restResp.Marshal2JSON()
+	respw.Write(jsonbytes)
 }

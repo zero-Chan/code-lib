@@ -13,27 +13,49 @@ type RestResponse struct {
 	ErrorCode int64 `json:"ErrorCode"`
 
 	// 错误原因
-	ErrorMsg string `json:"ErrorMsg"`
+	ErrorMsg string `json:"ErrorMsg,omitempty"`
 
 	// 请求唯一ID
 	SessionID string `json:"SessionID"`
 
 	// 响应内容
-	Data interface{} `json:"Data"`
+	Data interface{} `json:"Data,omitempty"`
 }
 
-func CreateRestResponse() (resp RestResponse) {
+func CreateRestResponse(sessionid string) (resp RestResponse) {
 	resp = RestResponse{
 		ErrorCode: 0,
+		SessionID: sessionid,
 	}
 
 	return
 }
 
-func NewRestResponse() (resp *RestResponse) {
-	r := CreateRestResponse()
+func NewRestResponse(sessionid string) (resp *RestResponse) {
+	r := CreateRestResponse(sessionid)
 	resp = &r
 	return
+}
+
+func (this *RestResponse) SetGError(gerr gerror.Error) *RestResponse {
+	if gerr.IsNil() {
+		this.Clear()
+		return this
+	}
+
+	this.ErrorCode = gerr.ErrCode()
+	this.ErrorMsg = gerr.Error()
+	return this
+}
+
+func (this *RestResponse) Clear() {
+	this.Data = nil
+	this.ErrorCode = 0
+	this.ErrorMsg = ""
+}
+
+func (this *RestResponse) SetData(data interface{}) {
+	this.Data = data
 }
 
 func (this *RestResponse) IsOk() bool {

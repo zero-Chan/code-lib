@@ -8,15 +8,15 @@ import (
 
 type HTTPChannel struct {
 	ID        string
-	request   *http.Request
-	responsew http.ResponseWriter
+	Request   *http.Request
+	Responsew http.ResponseWriter
 }
 
 func CreateHTTPChannel(respw http.ResponseWriter, req *http.Request) HTTPChannel {
 	ch := HTTPChannel{
 		ID:        uuid.New(),
-		request:   req,
-		responsew: respw,
+		Request:   req,
+		Responsew: respw,
 	}
 	return ch
 }
