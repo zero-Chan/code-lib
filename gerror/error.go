@@ -30,7 +30,7 @@ type GError struct {
 
 func CreateGError() (gerr GError) {
 	gerr = GError{
-		isNil: true,
+		isNil: false,
 	}
 	return
 }
@@ -41,7 +41,7 @@ func NewGError() (gerr *GError) {
 	return
 }
 
-func (this GError) Error() (data string) {
+func (this *GError) Error() (data string) {
 	data = fmt.Sprintf("[%d:%s]->%s", this.Code, this.Label, this.Message)
 	return
 }
@@ -52,4 +52,12 @@ func (this *GError) IsNil() bool {
 	}
 
 	return this.isNil
+}
+
+func (this *GError) ErrorString() (data string) {
+	return this.Error()
+}
+
+func (this *GError) ErrorBytes() (data []byte) {
+	return []byte(this.Error())
 }

@@ -13,8 +13,9 @@ const (
 	ErrSystemCode = 10000
 
 	// HTTPErr
-	ErrHTTPCode           = 20100
-	ErrHTTPRespStatusCode = 20101
+	ErrHTTPCode           = 20100 // HTTP 统一的Error
+	ErrHTTPRespStatusCode = 20101 // HTTP 响应Error
+	ErrHTTPMuxFilterCode  = 20102 // HTTP 路由过滤Error
 )
 
 // =====
@@ -49,5 +50,13 @@ func ErrHTTPRespStatus(statusCode int, reason error) (gerr *gerror.GError) {
 		statusCode, http.StatusText(statusCode),
 		reason)
 
+	return
+}
+
+func ErrHTTPMuxFilter(reason error) (gerr *gerror.GError) {
+	gerr = gerror.NewGError()
+	gerr.Code = ErrHTTPMuxFilterCode
+	gerr.Label = "ErrHTTPMuxFilter"
+	gerr.Message = reason.Error()
 	return
 }
