@@ -1,7 +1,6 @@
 package server
 
 import (
-	//	"fmt"
 	"net/http"
 
 	"code-lib/gerror"
@@ -16,18 +15,12 @@ type RoutingRule struct {
 type HTTPServer struct {
 	addr string
 	mux  HTTPMux
-
-	// map[path]rulefunc
-	routKeys map[string]http.HandlerFunc
-
-	processor HTTPProcessor
 }
 
 func CreateHTTPServer(addr string, mux HTTPMux) HTTPServer {
 	server := HTTPServer{
-		addr:     addr,
-		mux:      mux,
-		routKeys: make(map[string]http.HandlerFunc),
+		addr: addr,
+		mux:  mux,
 	}
 
 	return server
@@ -36,10 +29,6 @@ func CreateHTTPServer(addr string, mux HTTPMux) HTTPServer {
 func NewHTTPServer(addr string, mux HTTPMux) *HTTPServer {
 	server := CreateHTTPServer(addr, mux)
 	return &server
-}
-
-func (this *HTTPServer) SetProcessor(processor HTTPProcessor) {
-	this.processor = processor
 }
 
 func (this *HTTPServer) Serve() (gerr *gerror.GError) {
