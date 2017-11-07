@@ -3,20 +3,21 @@ package server
 import (
 	"net/http"
 
-	"github.com/pborman/uuid"
+	"code-lib/rest"
 )
 
 type HTTPChannel struct {
-	ID        string
+	*rest.RestChannel
+
 	Request   *http.Request
 	Responsew http.ResponseWriter
 }
 
 func CreateHTTPChannel(respw http.ResponseWriter, req *http.Request) HTTPChannel {
 	ch := HTTPChannel{
-		ID:        uuid.New(),
-		Request:   req,
-		Responsew: respw,
+		RestChannel: rest.NewRestChannel(),
+		Request:     req,
+		Responsew:   respw,
 	}
 	return ch
 }
@@ -24,4 +25,8 @@ func CreateHTTPChannel(respw http.ResponseWriter, req *http.Request) HTTPChannel
 func NewHTTPChannel(respw http.ResponseWriter, req *http.Request) *HTTPChannel {
 	ch := CreateHTTPChannel(respw, req)
 	return &ch
+}
+
+func (this *HTTPChannel) RestChan() *rest.RestChannel {
+	return this.RestChannel
 }

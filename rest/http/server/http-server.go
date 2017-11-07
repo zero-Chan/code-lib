@@ -31,7 +31,7 @@ func NewHTTPServer(addr string, mux HTTPMux) *HTTPServer {
 	return &server
 }
 
-func (this *HTTPServer) Serve() (gerr *gerror.GError) {
+func (this *HTTPServer) Serve() (gerr gerror.Error) {
 	var (
 		err error
 	)
@@ -52,13 +52,6 @@ func (this *HTTPServer) ServeHTTP(respw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	ctl := this.newController(hdl)
+	ctl := newHTTPController(this, hdl)
 	ctl.ServeHTTP(respw, req)
-}
-
-func (this *HTTPServer) newController(handler HTTPHandler) *HTTPController {
-	ctl := NewHTTPController()
-	ctl.svr = this
-	ctl.Handler = handler
-	return ctl
 }

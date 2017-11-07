@@ -1,13 +1,10 @@
 package rest
 
-type Processor interface {
-	Prepare() *RestResponse
-	Finish() *RestResponse
-}
-
 type HandlerFunc func() *RestResponse
 
 type Handler interface {
-	Processor
+	Prepare() *RestResponse
 	Handle() *RestResponse
+	Finish() *RestResponse
+	RestChan() *RestChannel
 }

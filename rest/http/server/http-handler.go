@@ -4,12 +4,7 @@ import (
 	"code-lib/rest"
 )
 
-type HTTPProcessor interface {
-	InitFromHTTP(httpch *HTTPChannel)
-	rest.Processor
-}
-
 type HTTPHandler interface {
-	InitFromHTTP(httpch *HTTPChannel)
+	InitFromHTTP(httpch *HTTPChannel) *rest.RestResponse
 	rest.Handler
 }

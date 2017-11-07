@@ -69,3 +69,7 @@ func (this *ClientAdd) Finish() *rest.RestResponse {
 
 	return resp
 }
+
+func (this *ClientAdd) RestChan() *rest.RestChannel {
+	return this.httpch.RestChan()
+}

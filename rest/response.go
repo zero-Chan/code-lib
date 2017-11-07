@@ -10,10 +10,10 @@ import (
 type RestResponse struct {
 	// 错误码
 	// 0: OK
-	ErrorCode int64 `json:"ErrorCode"`
+	ErrCode int64 `json:"ErrCode"`
 
 	// 错误原因
-	ErrorMsg string `json:"ErrorMsg,omitempty"`
+	ErrMsg string `json:"ErrMsg,omitempty"`
 
 	// 请求唯一ID
 	SessionID string `json:"SessionID"`
@@ -24,7 +24,7 @@ type RestResponse struct {
 
 func CreateRestResponse(sessionid string) (resp RestResponse) {
 	resp = RestResponse{
-		ErrorCode: 0,
+		ErrCode:   0,
 		SessionID: sessionid,
 	}
 
@@ -43,15 +43,15 @@ func (this *RestResponse) SetGError(gerr gerror.Error) *RestResponse {
 		return this
 	}
 
-	this.ErrorCode = gerr.ErrCode()
-	this.ErrorMsg = gerr.Error()
+	this.ErrCode = gerr.ErrCode()
+	this.ErrMsg = gerr.Error()
 	return this
 }
 
 func (this *RestResponse) Clear() {
 	this.Data = nil
-	this.ErrorCode = 0
-	this.ErrorMsg = ""
+	this.ErrCode = 0
+	this.ErrMsg = ""
 }
 
 func (this *RestResponse) SetData(data interface{}) {
@@ -63,7 +63,7 @@ func (this *RestResponse) IsOk() bool {
 		return false
 	}
 
-	return this.ErrorCode == 0
+	return this.ErrCode == 0
 }
 
 func (this *RestResponse) Marshal2JSON() (data []byte, gerr *gerror.GError) {

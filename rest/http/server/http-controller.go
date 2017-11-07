@@ -9,16 +9,19 @@ import (
 
 type HTTPController struct {
 	svr     *HTTPServer
-	Handler HTTPHandler
+	handler HTTPHandler
 }
 
-func CreateHTTPController() HTTPController {
-	hc := HTTPController{}
+func createHTTPController(svr *HTTPServer, hdl HTTPHandler) HTTPController {
+	hc := HTTPController{
+		svr:     svr,
+		handler: hdl,
+	}
 	return hc
 }
 
-func NewHTTPController() *HTTPController {
-	hc := CreateHTTPController()
+func newHTTPController(svr *HTTPServer, hdl HTTPHandler) *HTTPController {
+	hc := createHTTPController(svr, hdl)
 	return &hc
 }
 
@@ -32,16 +35,20 @@ func (this *HTTPController) ServeHTTP(respw http.ResponseWriter, req *http.Reque
 	httpch := NewHTTPChannel(respw, req)
 
 	// new handler
-	execHandler, ok := reflect_util.NewInterface(this.Handler).(HTTPHandler)
+	execHandler, ok := reflect_util.NewInterface(this.handler).(HTTPHandler)
 	if !ok {
 		respw.WriteHeader(http.StatusInternalServerError)
+		respw.Write([]byte(http.StatusText(http.StatusInternalServerError)))
 		return
 	}
 
-	// exec handler
-	execHandler.InitFromHTTP(httpch)
-
 	for {
+		// exec handler
+		restResp = execHandler.InitFromHTTP(httpch)
+		if !restResp.IsOk() {
+			break
+		}
+
 		restResp = execHandler.Prepare()
 		if !restResp.IsOk() {
 			break

@@ -8,6 +8,8 @@ type Error interface {
 	error
 	IsNil() bool
 	ErrCode() int64
+	ErrorString() string
+	ErrorBytes() []byte
 }
 
 type GError struct {
@@ -43,7 +45,7 @@ func NewGError() (gerr *GError) {
 }
 
 func (this *GError) Error() (data string) {
-	data = fmt.Sprintf("[%d:%s]->%s", this.Code, this.Label, this.Message)
+	data = fmt.Sprintf("[%d:%s]# %s", this.Code, this.Label, this.Message)
 	return
 }
 
