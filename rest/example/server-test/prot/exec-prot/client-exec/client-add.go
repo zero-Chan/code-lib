@@ -1,4 +1,4 @@
-package prot
+package client_exec
 
 type ClientAddRequest struct {
 	ClientID int64  `json:"ClientID"`

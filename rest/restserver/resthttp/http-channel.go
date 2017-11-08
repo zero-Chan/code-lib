@@ -1,4 +1,4 @@
-package server
+package resthttp
 
 import (
 	"net/http"

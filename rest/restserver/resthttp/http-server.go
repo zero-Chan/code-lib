@@ -1,4 +1,4 @@
-package server
+package resthttp
 
 import (
 	"net/http"
@@ -45,13 +45,13 @@ func (this *HTTPServer) Serve() (gerr gerror.Error) {
 }
 
 func (this *HTTPServer) ServeHTTP(respw http.ResponseWriter, req *http.Request) {
-	hdl, gerr := this.mux.FindHandler(req)
+	builder, gerr := this.mux.FindBuilder(req)
 	if !gerr.IsNil() {
 		respw.WriteHeader(http.StatusNotFound)
 		respw.Write(gerr.ErrorBytes())
 		return
 	}
 
-	ctl := newHTTPController(this, hdl)
+	ctl := newHTTPController(this, builder)
 	ctl.ServeHTTP(respw, req)
 }

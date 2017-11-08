@@ -3,9 +3,9 @@ package restmux
 import (
 	"net/http"
 
-	"code-lib/rest/http/server/mux"
+	"code-lib/rest/restserver/resthttp/mux"
 
-	"server-test/handlers"
+	"rest_example/server-test/executor/client-exec"
 )
 
 var (
@@ -25,8 +25,8 @@ func init() {
 }
 
 func regist() {
-	HTTPMux.MPHTTPMux.RegisterHandler(
-		handlers.NewClientAdd(),
+	HTTPMux.MPHTTPMux.RegisterBuilder(
+		client_exec.NewClientAddBuilder(),
 		mux.MPHTTPMuxRule{
 			Path:   "/client/add",
 			Method: http.MethodPost,

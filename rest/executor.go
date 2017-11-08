@@ -1,10 +1,8 @@
 package rest
 
-type HandlerFunc func() *RestResponse
-
-type Handler interface {
+type Executor interface {
 	Prepare() *RestResponse
-	Handle() *RestResponse
+	Exec() *RestResponse
 	Finish() *RestResponse
 	RestChan() *RestChannel
 }

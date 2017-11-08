@@ -1,9 +1,0 @@
-# 程序模板
-- bin/ 存放二进制文件
-- app/ 存放main.go文件
-- handlers/ 存放handler实例
-- conf/ 存放conf.go文件
-- conf/files/ 存放记录配置信息的文件
-- models/ 存放通用模块
-- prot/ 存放协议数据结构
-- restmux/ 存放项目使用的多路复用器

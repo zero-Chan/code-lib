@@ -7,7 +7,7 @@ import (
 	"code-lib/gerror"
 	system_err "code-lib/gerror/system"
 
-	"code-lib/rest/http/server"
+	"code-lib/rest/restserver/resthttp"
 )
 
 type MPHTTPMuxRule struct {
@@ -20,12 +20,12 @@ type MPHTTPMuxRule struct {
 // P: Path must to be hit
 type MPHTTPMux struct {
 	// map[path][method]rulefunc
-	routKeys map[string]map[string]server.HTTPHandler
+	routKeys map[string]map[string]resthttp.HTTPBuilder
 }
 
 func CreateHTTPPathMux() MPHTTPMux {
 	hm := MPHTTPMux{
-		routKeys: make(map[string]map[string]server.HTTPHandler),
+		routKeys: make(map[string]map[string]resthttp.HTTPBuilder),
 	}
 
 	return hm
@@ -36,7 +36,7 @@ func NewHTTPPathMux() *MPHTTPMux {
 	return &hm
 }
 
-func (this *MPHTTPMux) RegisterHandler(handler server.HTTPHandler, rule MPHTTPMuxRule) {
+func (this *MPHTTPMux) RegisterBuilder(builder resthttp.HTTPBuilder, rule MPHTTPMuxRule) {
 	// check must be set
 	var (
 		path   = rule.Path
@@ -53,7 +53,7 @@ func (this *MPHTTPMux) RegisterHandler(handler server.HTTPHandler, rule MPHTTPMu
 	pathMethods, ok := this.routKeys[path]
 	if !ok {
 		// map[method]rulefunc
-		pathMethods = make(map[string]server.HTTPHandler)
+		pathMethods = make(map[string]resthttp.HTTPBuilder)
 	}
 
 	_, ok = pathMethods[method]
@@ -61,14 +61,14 @@ func (this *MPHTTPMux) RegisterHandler(handler server.HTTPHandler, rule MPHTTPMu
 		panic(fmt.Sprintf("http: multiple registrations for path(%s), method(%s)", path, method))
 	}
 
-	pathMethods[method] = handler
+	pathMethods[method] = builder
 
 	this.routKeys[path] = pathMethods
 }
 
 // FindHandler
 // 查找算法高效与否严重影响性能
-func (this *MPHTTPMux) FindHandler(req *http.Request) (hdl server.HTTPHandler, gerr *gerror.GError) {
+func (this *MPHTTPMux) FindBuilder(req *http.Request) (builder resthttp.HTTPBuilder, gerr *gerror.GError) {
 	// Hits algorithm
 	method := req.Method
 	path := req.URL.Path
@@ -79,7 +79,7 @@ func (this *MPHTTPMux) FindHandler(req *http.Request) (hdl server.HTTPHandler, g
 		return
 	}
 
-	hdl, ok = ownMethods[method]
+	builder, ok = ownMethods[method]
 	if !ok {
 		gerr = system_err.ErrHTTPMuxFilter(fmt.Errorf("Can not find HTTP method(%s) in path(%s)", method, path))
 		return
