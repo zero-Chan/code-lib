@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 
 	encoding_err "code-lib/gerror/encoding"
+	system_err "code-lib/gerror/system"
+
 	"code-lib/rest"
 	"code-lib/rest/restserver/resthttp"
 
@@ -30,8 +32,8 @@ func (this *ClientAddBuilder) BuildExectorFromHTTP(httpch *resthttp.HTTPChannel)
 
 	rawMessage, err := ioutil.ReadAll(httpch.Request.Body)
 	if err != nil {
-		// TODO set gerror
-
+		resp.SetGError(system_err.ErrIORead("HTTP", err))
+		return nil, resp
 	}
 
 	err = json.Unmarshal(rawMessage, request)
@@ -40,24 +42,23 @@ func (this *ClientAddBuilder) BuildExectorFromHTTP(httpch *resthttp.HTTPChannel)
 		return nil, resp
 	}
 
-	exec := NewClientAddHandler(httpch.RestChan(), request)
+	exec := NewClientAddExec(httpch.RestChan(), request)
 	return exec, resp
 }
 
 type ClientAddExec struct {
-	// datas
 	restChannel  *rest.RestChannel
 	requestBody  *prot.ClientAddRequest
 	responseBody *prot.ClientAddResponse
 }
 
-func NewClientAddHandler(channel *rest.RestChannel, req *prot.ClientAddRequest) *ClientAddExec {
-	hdl := &ClientAddExec{
+func NewClientAddExec(channel *rest.RestChannel, req *prot.ClientAddRequest) *ClientAddExec {
+	exec := &ClientAddExec{
 		restChannel: channel,
 		requestBody: req,
 	}
 
-	return hdl
+	return exec
 }
 
 func (this *ClientAddExec) Prepare() *rest.RestResponse {

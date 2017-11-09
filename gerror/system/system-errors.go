@@ -8,6 +8,7 @@ import (
 )
 
 // SystemErr 以 10000　为基准
+// 增加基数为 100
 
 const (
 	ErrSystemCode = 10000
@@ -16,6 +17,11 @@ const (
 	ErrHTTPCode           = 20100 // HTTP 统一的Error
 	ErrHTTPRespStatusCode = 20101 // HTTP 响应Error
 	ErrHTTPMuxFilterCode  = 20102 // HTTP 路由过滤Error
+
+	// IOErr
+	ErrIOCode      = 20200 // IO　操作统一Error
+	ErrIOReadCode  = 20201 // IO Read Error
+	ErrIOWriteCode = 20202 // IO Write Error
 )
 
 // =====
@@ -58,5 +64,32 @@ func ErrHTTPMuxFilter(reason error) (gerr *gerror.GError) {
 	gerr.Code = ErrHTTPMuxFilterCode
 	gerr.Label = "ErrHTTPMuxFilter"
 	gerr.Message = reason.Error()
+	return
+}
+
+// ==========
+// IOErr:
+// Code: range [20200, 20299)
+func ErrIO(reason error) (gerr *gerror.GError) {
+	gerr = gerror.NewGError()
+	gerr.Code = ErrIOCode
+	gerr.Label = "ErrIO"
+	gerr.Message = reason.Error()
+	return
+}
+
+func ErrIORead(src string, reason error) (gerr *gerror.GError) {
+	gerr = gerror.NewGError()
+	gerr.Code = ErrIOReadCode
+	gerr.Label = "ErrIORead"
+	gerr.Message = fmt.Sprintf("src[%s], reason: %s", src, reason)
+	return
+}
+
+func ErrIOWrite(src string, reason error) (gerr *gerror.GError) {
+	gerr = gerror.NewGError()
+	gerr.Code = ErrIOWriteCode
+	gerr.Label = "ErrIOWrite"
+	gerr.Message = fmt.Sprintf("src[%s], reason: %s", src, reason)
 	return
 }

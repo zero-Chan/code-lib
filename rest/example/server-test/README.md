@@ -62,7 +62,7 @@ func (this *ClientAddExec) Finish() *rest.RestResponse {
 ## prot/exec-prot/　中，目录结构要和 executor/　里面的一样
 e.g:
 ```
-prot/exec-prot/client-exec-prot		
+prot/exec-prot/client-exec		
 prot/exec-prot/client-exec/client-add.go	# 编码client.add的`Request`和`Response`.  package client_exec
 prot/exec-prot/client-exec/client-get.go	# 编码client.get的`Request`和`Response`.  package client_exec
 ```

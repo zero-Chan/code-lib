@@ -33,11 +33,11 @@ func regist() {
 		},
 	)
 
-	//	HTTPMux.MPHTTPMux.RegisterHandler(
-	//		handlers.NewClientDel(),
-	//		mux.MPHTTPMuxRule{
-	//			Path:   "/client/del",
-	//			Method: http.MethodPost,
-	//		},
-	//	)
+	HTTPMux.MPHTTPMux.RegisterBuilder(
+		client_exec.NewClientGetBuilder(),
+		mux.MPHTTPMuxRule{
+			Path:   "/client/get",
+			Method: http.MethodPost,
+		},
+	)
 }
