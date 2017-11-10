@@ -7,11 +7,6 @@ import (
 	system_err "code-lib/gerror/system"
 )
 
-type RoutingRule struct {
-	Path   string
-	Method string
-}
-
 type HTTPServer struct {
 	addr string
 	mux  HTTPMux
