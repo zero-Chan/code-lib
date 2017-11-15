@@ -58,7 +58,7 @@ func (this *MPHTTPMux) RegisterBuilder(builder resthttp.HTTPBuilder, rule MPHTTP
 
 	_, ok = pathMethods[method]
 	if ok {
-		panic(fmt.Sprintf("http: multiple registrations for path(%s), method(%s)", path, method))
+		panic(fmt.Sprintf("http-mpmux: multiple registrations for path(%s), method(%s)", path, method))
 	}
 
 	pathMethods[method] = builder

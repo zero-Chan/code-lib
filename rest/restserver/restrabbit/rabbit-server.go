@@ -1,16 +1,24 @@
 package restrabbit
 
 import (
+	"github.com/streadway/amqp"
+
 	"code-lib/gerror"
 	//	system_err "code-lib/gerror/system"
 )
 
 type RabbitServer struct {
-	addr string
-	mux  RabbitMux
+	addr     amqp.URI
+	cli      *amqp.Connection
+	channels []struct {
+		amqpChan *amqp.Channel
+		Consumer AMQPConsumer
+	}
+
+	mux RabbitMux
 }
 
-func CreateRabbitServer(addr string, mux RabbitMux) RabbitServer {
+func CreateRabbitServer(addr amqp.URI, mux RabbitMux) RabbitServer {
 	server := RabbitServer{
 		addr: addr,
 		mux:  mux,
@@ -19,32 +27,43 @@ func CreateRabbitServer(addr string, mux RabbitMux) RabbitServer {
 	return server
 }
 
-func NewRabbitServer(addr string, mux RabbitMux) *RabbitServer {
+func NewRabbitServer(addr amqp.URI, mux RabbitMux) *RabbitServer {
 	server := CreateRabbitServer(addr, mux)
 	return &server
 }
 
 func (this *RabbitServer) Serve() (gerr gerror.Error) {
 	var (
-	//		err error
+		err error
 	)
 
-	//	err = http.ListenAndServe(this.addr, this)
-	//	if err != nil {
-	//		return system_err.ErrHTTP(err)
-	//	}
+	this.cli, err = amqp.Dial(this.addr.String())
+	if err != nil {
+		// TODO
+		return
+	}
+
+	for _, pms := range this.mux.RangeConsumer() {
+		ch, err := this.cli.Channel()
+		deliveries, err := ch.Consume(pms.Queue, pms.Consumer, false, pms.Exclusive, false, pms.NoWait, pms.Args)
+		if err != nil {
+			// TODO
+			return
+		}
+
+		go this.serveConsume(deliveries, pms.Builder)
+	}
 
 	return
 }
 
-//func (this *RabbitServer) ServeHTTP(respw http.ResponseWriter, req *http.Request) {
-//	builder, gerr := this.mux.FindBuilder(req)
-//	if !gerr.IsNil() {
-//		respw.WriteHeader(http.StatusNotFound)
-//		respw.Write(gerr.ErrorBytes())
-//		return
-//	}
+func (this *RabbitServer) serveRabbit() {
 
-//	ctl := newHTTPController(this, builder)
-//	ctl.ServeHTTP(respw, req)
-//}
+}
+
+func (this *RabbitServer) serveConsume(deliveries <-chan amqp.Delivery, builder RabbitBuilder) {
+	for delivery := range deliveries {
+		ctl := newRabbitController(this, builder)
+		ctl.ServeRabbit(delivery)
+	}
+}
