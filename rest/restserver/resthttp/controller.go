@@ -26,32 +26,32 @@ func newHTTPController(svr *HTTPServer, builder HTTPBuilder) *HTTPController {
 
 func (this *HTTPController) ServeHTTP(respw http.ResponseWriter, req *http.Request) {
 	var (
-		restResp *rest.RestResponse
 		executor rest.Executor
 	)
 	respw.WriteHeader(http.StatusOK)
 
-	// new channel
-	httpch := NewHTTPChannel(respw, req)
+	// new http cmd
+	cmd := NewHTTPCmd(respw, req)
+	restResp := rest.NewRestResponse(cmd.ID)
 
 	for {
 		// exec handler
-		executor, restResp = this.builder.BuildExectorFromHTTP(httpch)
+		executor = this.builder.HTTPBuildExec(cmd, restResp)
 		if !restResp.IsOk() {
 			break
 		}
 
-		restResp = executor.Prepare()
+		executor.Prepare(restResp)
 		if !restResp.IsOk() {
 			break
 		}
 
-		restResp = executor.Exec()
+		executor.Exec(restResp)
 		if !restResp.IsOk() {
 			break
 		}
 
-		restResp = executor.Finish()
+		executor.Finish(restResp)
 		if !restResp.IsOk() {
 			break
 		}
