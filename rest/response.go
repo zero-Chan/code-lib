@@ -1,13 +1,13 @@
 package rest
 
 import (
-	"encoding/json"
-
 	"code-lib/gerror"
-	encoding_err "code-lib/gerror/encoding"
+	"code-lib/rest/proto"
 )
 
 type RestResponse struct {
+	baseResponse
+
 	// 错误码
 	// 0: OK
 	ErrCode int64 `json:"ErrCode"`
@@ -24,8 +24,9 @@ type RestResponse struct {
 
 func CreateRestResponse(sessionid string) (resp RestResponse) {
 	resp = RestResponse{
-		ErrCode:   0,
-		SessionID: sessionid,
+		baseResponse: CreatebaseResponse(),
+		ErrCode:      0,
+		SessionID:    sessionid,
 	}
 
 	return
@@ -66,24 +67,23 @@ func (this *RestResponse) IsOk() bool {
 	return this.ErrCode == 0
 }
 
-func (this *RestResponse) Marshal2JSON() (data []byte, gerr *gerror.GError) {
-	var err error
-	data, err = json.Marshal(this)
-	if err != nil {
-		gerr = encoding_err.ErrJSONMarshal(err)
-		return
-	}
-
-	return
+type baseResponse struct {
+	Proto proto.ProtoType `json:"-"`
 }
 
-func (this *RestResponse) Unmarshal2JSON(data []byte) (gerr *gerror.GError) {
-	var err error
-	err = json.Unmarshal(data, this)
-	if err != nil {
-		gerr = encoding_err.ErrJSONUnmarshal(err)
-		return
+func CreatebaseResponse() baseResponse {
+	resp := baseResponse{
+		// default use json proto
+		Proto: proto.ProtoType_JSON,
 	}
 
-	return
+	return resp
+}
+
+func (this *baseResponse) Marshal() (data []byte, gerr gerror.Error) {
+	return this.Proto.Marshal(this)
+}
+
+func (this *baseResponse) Unmarshal(data []byte) gerror.Error {
+	return this.Proto.Unmarshal(data, this)
 }

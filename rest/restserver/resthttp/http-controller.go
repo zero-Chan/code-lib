@@ -59,6 +59,6 @@ func (this *HTTPController) ServeHTTP(respw http.ResponseWriter, req *http.Reque
 		break
 	}
 
-	jsonbytes, _ := restResp.Marshal2JSON()
-	respw.Write(jsonbytes)
+	bytes, _ := restResp.Marshal()
+	respw.Write(bytes)
 }
